@@ -1,16 +1,16 @@
 from typing import List
-
+# 导入langchain相关的模块
 from langchain.embeddings.base import Embeddings
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.schema import Document
 from langchain.vectorstores import Milvus
 
-
+# 定义向量数据库类
 class MilvusDBService:
     '''
     MilvusDBService is a service that provides a simple interface to MilvusDB.
     '''
-
+    # 实例初始化函数（设置默认参数）
     def __init__(self,
                  embeddings: Embeddings = OpenAIEmbeddings,
                  host: str = "localhost",
@@ -21,6 +21,7 @@ class MilvusDBService:
         self.port = port
         self.top_k = top_k
         self.score_threshold = score_threshold
+        # 调用实例函数初始化参数
         self.milvus = self._load_db(embeddings=embeddings,
                                     host=host,
                                     port=port)
@@ -49,6 +50,7 @@ class MilvusDBService:
         pass
 
 
+# 直接运行当前.py文件以下代码才会执行，其余情况以下代码不会执行。
 if __name__ == "__main__":
     db = MilvusDBService(
         embeddings=OpenAIEmbeddings(

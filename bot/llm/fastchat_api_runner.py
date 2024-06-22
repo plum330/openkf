@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# multiprocessing 基于进程的并行
 import multiprocessing as mp
 from multiprocessing import Event
 import sys
@@ -23,6 +24,7 @@ from typing import List
 sys.path.append("..")
 
 from fastapi import FastAPI
+# uvicorn用于构建异步web服务
 import uvicorn
 import httpx
 

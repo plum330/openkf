@@ -17,27 +17,41 @@ import os
 
 import yaml
 from colorama import Fore
-
+# 等价于sys.path.append('..') 获取上一层目录
+# https://blog.csdn.net/JOJOY_tester/article/details/54598713
+"""
+sys.path是Python解释器搜索模块的目录列表
+所以sys.path.append的作用就是将项目中的模块路径追加到python解释器的搜索列表中
+"""
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
+# 定义配置读取类
 class KBConfig:
     '''
     KBConfig is a class that loads the configuration file.
     Use load_config to load the configuration file, and use get_* to get the configuration.
     '''
+    # 定义类构造函数(实例初始化函数),指定file变量类型是str， 返回值是空None
     def __init__(self, file: str) -> None:
+        # 初始化_config变量为None
         self._config = None
-        
+        # 文件打开操作
         with open(file, encoding="utf-8") as fp:
-            self._config = yaml.safe_load(fp.read())
+            # fp.read()文件读操作
+            self._config = yaml.safe_load(fp.read()) # yaml文件读操作
 
     ###############################
     # OpenKF bot config
     ###############################
+    # 定义从配置文件self._config变量中获取各个配置字段，并指定函数的返回类型
     def get_app_version(self) -> str:
         return self._config['app']['version']
 
     def get_app_host(self) -> str:
+        """
+        这是python条件表达式的写法
+        也可以改写成[self._config['app']['host'], "0.0.0.0"][self._config['app']['host']==""],
+        False返回第一个， True返回第二个。
+        """
         return self._config['app']['host'] if self._config['app']['host'] else "0.0.0.0"
 
     def get_app_port(self) -> str:
@@ -83,6 +97,7 @@ class KBConfig:
     # LLM fastchat config
     ###############################
     def get_fastchat_models_model_path(self) -> str:
+        # 强制转换成字符串类型
         return str(self._config['fastchat']['models']['model_path'])
     
     def get_fastchat_models_llm_model_name(self) -> str:
