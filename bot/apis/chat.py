@@ -28,6 +28,7 @@ Question:{question}
 def knowledge_base_chat(msg: KnowledgeBaseMsgIn):
     config = router.kb_config
 
+    #初始化向量数据库
     db = milvus.MilvusDBService(
         embeddings=OpenAIEmbeddings(
             model=config.get_fastchat_models_embedding_model_name()),
@@ -37,6 +38,7 @@ def knowledge_base_chat(msg: KnowledgeBaseMsgIn):
         score_threshold=config.get_milvus_score_threshold()
     )
 
+    # 初始化LLM
     llm = ChatOpenAI(
         streaming=False,
         verbose=True,
@@ -46,6 +48,7 @@ def knowledge_base_chat(msg: KnowledgeBaseMsgIn):
         model_name=config.get_fastchat_models_llm_model_name(),
     )
     docs = db.search(msg.query)
+    # 通过换行组织查询的文档成一个字符串
     context = "\n".join([doc.page_content for doc in docs])
 
     chat_prompt = ChatPromptTemplate.from_messages([("human", PROMPT_TEMPLATE)])

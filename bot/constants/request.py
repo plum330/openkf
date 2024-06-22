@@ -2,6 +2,7 @@
 # 在python中定义请求结构即是定义class类变量
 import pydantic
 from pydantic import BaseModel
+# typing用于对类型提示的支持 https://cuiqingcai.com/7071.html
 from typing import List
 
 class OpenAIMessage(BaseModel):
