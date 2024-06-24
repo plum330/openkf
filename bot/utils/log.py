@@ -34,11 +34,11 @@ class KFLog:
     log_level = constants.LOG_LEVEL_INFO
 
     @classmethod
-    def init_logger(self, log_path: str, log_level: str):
+    def init_logger(cls, log_path: str, log_level: str):
         KFLog.log_level = log_level
         KFLog.log_path = os.path.join(log_path, datetime.datetime.now().strftime("%Y-%m-%d.log"))
         logger.add(KFLog.log_path, rotation="10 MB", retention="1 day", level=self.log_level)
 
     @classmethod
-    def get_logger(self):
+    def get_logger(cls):
         return logger

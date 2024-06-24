@@ -13,10 +13,12 @@
 # limitations under the License.
 
 # multiprocessing 基于进程的并行
+# python多进程 多线程 多协程：https://juejin.cn/post/7088521649070276644
 import multiprocessing as mp
 from multiprocessing import Event
 import sys
 import os
+# 用于函数在结束前执行的代码
 import atexit
 from typing import List
 
@@ -40,6 +42,9 @@ httpx._config.DEFAULT_TIMEOUT_CONFIG.write = 120
 logger = None
 
 
+# 定义多进程相关的类
+# 类继承Process，用类作为进程
+# http://kaito-kidd.com/2018/05/11/python-advance-process-thread/
 class FastChatControllerRunner(mp.Process):
     '''
     Fastchat controller process
@@ -57,11 +62,13 @@ class FastChatControllerRunner(mp.Process):
         self.dispatch_method = dispatch_method
         self.app = self._create_controller()
 
+    # 构建api
     def _create_controller(self) -> FastAPI:
         from fastchat.serve.controller import app, Controller
         from fastapi.middleware.cors import CORSMiddleware
         import fastchat.constants
 
+        # 设置fastchat日志路径
         fastchat.constants.LOGDIR = self.log_path
 
         app.add_middleware(
@@ -73,17 +80,21 @@ class FastChatControllerRunner(mp.Process):
         )
 
         controller = Controller(self.dispatch_method)
+        # sys.modules对加载模块进行缓冲，提高程序运行速度
         sys.modules["fastchat.serve.controller"].controller = controller
 
         @app.on_event("startup")
         async def startup_event():
             if self.prev_event:
+                # 进程阻塞等待
                 self.prev_event.wait()
             if self.curr_event:
+                # 设置event flag = true
                 self.curr_event.set()
 
         return app
 
+    # 通过重写Process类的run()方法，以便进程执行start()时调用
     def run(self):
         uvicorn.run(self.app,
                     host=self.host,
@@ -215,29 +226,43 @@ class FastChatApiRunner(mp.Process):
 
 def stop_fastchat(processes: List[mp.Process]):
     for process in processes:
-        process.terminate()
+        process.terminate() # 杀死子进程
         process.join(timeout=60)
 
 
 def main():
     # Init system
+    # 获取系统配置参数
     kf_config = config.KBConfig("../config.yaml")
     global logger
+    # 日志初始化
     log.KFLog.init_logger(
         kf_config.get_app_log_path(), constants.LOG_LEVEL_DEBUG
         if kf_config.get_app_debug() else constants.LOG_LEVEL_INFO)
+        # banner设置
     banner.kf_banner(kf_config.get_app_version(), kf_config.get_app_debug(),
                      kf_config.get_app_log_path())
 
+    # python多进程编程:http://kaito-kidd.com/2018/05/11/python-advance-process-thread/
+    # 定义多进程时间Event()
+    '''
+    https://blog.csdn.net/weixin_43794311/article/details/116116516
+    1. event.set:解除阻塞
+    2.event.clear:清除状态
+    3.event.wait:等待后续继续处理
+    https://cloud.tencent.com/developer/article/1485103
+    '''
     cr_event = Event()
     mr_event = Event()
     ar_event = Event()
 
     # Start process
+    # 初始化类作为进程
     cr = FastChatControllerRunner(
         None, cr_event, kf_config.get_fastchat_controller_host(),
         int(kf_config.get_fastchat_controller_port()),
         kf_config.get_app_log_path(), "shortest_queue")
+    # 启动进程
     cr.start()
 
     mr = FastChatModelRunner(
@@ -271,11 +296,13 @@ def main():
     ar.start()
 
     # Stop process
+    # 主进程等待子进程执行结束
     try:
         cr.join()
         mr.join()
         ar.join()
     except KeyboardInterrupt:
+        # 注册函数退出时的回调函数
         atexit.register(stop_fastchat, [cr, mr, ar])
 
 
