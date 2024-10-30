@@ -51,6 +51,12 @@ class KBConfig:
         这是python条件表达式的写法
         也可以改写成[self._config['app']['host'], "0.0.0.0"][self._config['app']['host']==""],
         False返回第一个， True返回第二个。
+        if 字符串非空时 认为是True，否则False
+        下面的语句相当于是：
+        if self._config['app']['host']:
+            return self._config['app']['host']
+        else:
+            return '0.0.0.0'
         """
         return self._config['app']['host'] if self._config['app']['host'] else "0.0.0.0"
 

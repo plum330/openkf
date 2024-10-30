@@ -28,6 +28,7 @@ sys.path.append("..")
 from fastapi import FastAPI
 # uvicorn用于构建异步web服务
 import uvicorn
+# httpx发送网络请求
 import httpx
 
 import utils.config as config
@@ -35,6 +36,7 @@ import utils.log as log
 from utils import banner
 import constants.constants as constants
 
+# 设置httpx请求客户端参数
 httpx._config.DEFAULT_TIMEOUT_CONFIG.connect = 120
 httpx._config.DEFAULT_TIMEOUT_CONFIG.read = 120
 httpx._config.DEFAULT_TIMEOUT_CONFIG.write = 120

@@ -25,6 +25,10 @@ async def main():
 asyncio.run(main())
 如上代码await表示，执行第一个count()后，运行到await处，代码不会一直阻塞在这里，而是会继续执行第二个count().
 """
+
+'''
+try except finally: https://blog.csdn.net/leviopku/article/details/104265284
+'''
 async def doc_upload(file: UploadFile):
     config = router.kb_config
     
